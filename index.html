@@ -14,6 +14,10 @@
   <!-- Menggunakan library SheetJS untuk export ke Excel -->
   <script src="https://cdn.jsdelivr.net/npm/sheetjs/dist/xlsx.full.min.js"></script>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
   <!-- Menggunakan font Inter dari Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,15 +28,34 @@
     body {
       font-family: 'Inter', sans-serif;
     }
+    /* Sembunyikan dashboard secara default */
+    #dashboard-content {
+        display: none;
+    }
   </style>
 </head>
 <body class="min-h-screen p-4 md:p-8 bg-base-200 text-base-content">
 
+  <!-- ======================================== -->
+  <!-- LOGIN CONTAINER -->
+  <!-- ======================================== -->
+  <div id="login-container" class="container mx-auto max-w-md mt-20 p-8 card bg-base-100 shadow-xl rounded-2xl text-center">
+    <h1 class="text-3xl md:text-4xl font-extrabold text-primary mb-6">Login Dashboard Penjualan</h1>
+    <p class="text-base-content/80 mb-8">Masuk dengan akun Google Anda untuk mengakses dashboard.</p>
+    <button id="google-login-btn" class="btn btn-primary btn-lg w-full">
+      <i class="fab fa-google mr-3"></i> Login dengan Google
+    </button>
+  </div>
+
   <!-- Main container dengan layout responsif -->
-  <div class="container mx-auto space-y-8">
+  <div id="dashboard-content" class="container mx-auto space-y-8">
     <header class="text-center py-4">
       <h1 class="text-4xl md:text-5xl font-extrabold text-primary mb-2">Dashboard Penjualan</h1>
       <p class="text-sm md:text-md text-base-content/80">Monitor data penjualan harian Anda dengan mudah.</p>
+      <div class="mt-4">
+        <p class="text-sm text-base-content/70">Selamat datang, <span id="user-display-name" class="font-semibold text-accent"></span>!</p>
+        <button id="logout-btn" class="btn btn-sm btn-error mt-2">Logout</button>
+      </div>
     </header>
 
     <!-- ======================================== -->
@@ -221,18 +244,73 @@
       </div>
     </dialog>
   </div>
-  
+
   <!-- ======================================== -->
   <!-- JAVASCRIPT UTAMA -->
   <!-- ======================================== -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
 
+      // ===============================
+      // KONFIGURASI FIREBASE ANDA
+      // GANTI DENGAN KONFIGURASI PROYEK ANDA DARI FIREBASE CONSOLE!
+      // ===============================
+      const firebaseConfig = {
+    apiKey: "AIzaSyBrs2EPPgrgoTMINYbcXh3-hZlNbB-CJtg",
+    authDomain: "n2tracker.firebaseapp.com",
+    projectId: "n2tracker",
+    storageBucket: "n2tracker.firebasestorage.app",
+    messagingSenderId: "904299154916",
+    appId: "1:904299154916:web:5f2adbfd653f631f3e8bf1"
+  };
+  
+
+      // Inisialisasi Firebase
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const provider = new firebase.auth.GoogleAuthProvider();
+
       // URL API dari SheetDB.io
       const API_URL = 'https://sheetdb.io/api/v1/rjpiyt4i6zpw2'; 
 
       // ===============================
-      // Utility: Format Rupiah & Tanggal
+      // DOM Elements & State Management (DIATUR ULANG UNTUK AUTENTIKASI)
+      // ===============================
+      const loginContainer = document.getElementById('login-container');
+      const dashboardContent = document.getElementById('dashboard-content');
+      const googleLoginBtn = document.getElementById('google-login-btn');
+      const logoutBtn = document.getElementById('logout-btn');
+      const userDisplayName = document.getElementById('user-display-name');
+
+      const tableBody = document.getElementById('table-body');
+      const totalN2 = document.getElementById('total-n2');
+      const totalTambal = document.getElementById('total-tambal');
+      const totalKeseluruhan = document.getElementById('total-keseluruhan');
+      const infJumlah = document.getElementById('inf-jumlah');
+      const infN2 = document.getElementById('inf-n2');
+      const infTambal = document.getElementById('inf-tambal');
+      const infKeseluruhan = document.getElementById('inf-keseluruhan');
+      const inputTarget = document.getElementById('target');
+      const sisaTarget = document.getElementById('sisa-target');
+      const salesForm = document.getElementById('sales-form');
+      const btnSubmit = document.getElementById('btn-submit');
+      const deleteModal = document.getElementById('delete_modal');
+      const resetModal = document.getElementById('reset_modal');
+      const confirmDeleteBtn = document.getElementById('confirm-delete');
+      const confirmResetBtn = document.getElementById('confirm-reset');
+      const resetDataBtn = document.getElementById('reset-data-btn');
+      const sortBtn = document.getElementById('sort-btn');
+      const sortIcon = document.getElementById('sort-icon');
+      const downloadJsonBtn = document.getElementById('download-json-btn');
+      const downloadXlsxBtn = document.getElementById('download-xlsx-btn');
+
+      let data = [];
+      let editingRow = null;
+      let rowToDeleteTanggal = null;
+      let sortOrder = 'desc';
+
+      // ===============================
+      // Utility: Format Rupiah & Tanggal & Modal
       // ===============================
       function formatRupiah(num) {
         return 'Rp ' + (num || 0).toLocaleString('id-ID', {
@@ -280,41 +358,77 @@
       }
 
       // ===============================
-      // DOM Elements & State Management
+      // Firebase Authentication Logic
       // ===============================
-      const tableBody = document.getElementById('table-body');
-      const totalN2 = document.getElementById('total-n2');
-      const totalTambal = document.getElementById('total-tambal');
-      const totalKeseluruhan = document.getElementById('total-keseluruhan');
-      const infJumlah = document.getElementById('inf-jumlah');
-      const infN2 = document.getElementById('inf-n2');
-      const infTambal = document.getElementById('inf-tambal');
-      const infKeseluruhan = document.getElementById('inf-keseluruhan');
-      const inputTarget = document.getElementById('target');
-      const sisaTarget = document.getElementById('sisa-target');
-      const salesForm = document.getElementById('sales-form');
-      const btnSubmit = document.getElementById('btn-submit');
-      const deleteModal = document.getElementById('delete_modal');
-      const resetModal = document.getElementById('reset_modal');
-      const confirmDeleteBtn = document.getElementById('confirm-delete');
-      const confirmResetBtn = document.getElementById('confirm-reset');
-      const resetDataBtn = document.getElementById('reset-data-btn');
-      const sortBtn = document.getElementById('sort-btn');
-      const sortIcon = document.getElementById('sort-icon');
-      const downloadJsonBtn = document.getElementById('download-json-btn');
-      const downloadXlsxBtn = document.getElementById('download-xlsx-btn');
 
-      let data = [];
-      let editingRow = null;
-      let rowToDeleteTanggal = null;
-      let sortOrder = 'desc';
+      // Fungsi untuk mengizinkan atau menolak akses berdasarkan email
+      // GANTI DENGAN EMAIL YANG DIIZINKAN (misal: "admin@example.com")
+      const ALLOWED_EMAILS = ["ridwanwiki18220@gmail.com"]; // <-- GANTI INI
+
+      function isUserAuthorized(user) {
+          if (!user || !user.email) return false;
+          return ALLOWED_EMAILS.includes(user.email);
+      }
+
+      // Listener untuk perubahan status autentikasi
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          // Pengguna login
+          if (isUserAuthorized(user)) {
+              loginContainer.style.display = 'none';
+              dashboardContent.style.display = 'block';
+              userDisplayName.textContent = user.displayName || user.email;
+              fetchData(); // Muat data setelah login berhasil
+          } else {
+              // Pengguna tidak diizinkan
+              auth.signOut(); // Logout pengguna yang tidak berwenang
+              loginContainer.style.display = 'block';
+              dashboardContent.style.display = 'none';
+              showModal('Akses Ditolak', 'Maaf, akun Anda tidak memiliki izin untuk mengakses dashboard ini.');
+          }
+        } else {
+          // Pengguna logout
+          loginContainer.style.display = 'block';
+          dashboardContent.style.display = 'none';
+        }
+      });
+
+      // Event listener untuk tombol Google Login
+      googleLoginBtn.addEventListener('click', () => {
+        // PERBAIKAN: Set persistance agar sesi tidak berakhir secara tiba-tiba
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+            .then(() => {
+                return auth.signInWithPopup(provider);
+            })
+            .catch((error) => {
+                console.error('Error saat login:', error);
+                showModal('Login Gagal', `Terjadi kesalahan saat mencoba login: ${error.message}`);
+            });
+      });
+
+      // Event listener untuk tombol Logout
+      logoutBtn.addEventListener('click', () => {
+        auth.signOut()
+          .then(() => {
+            showModal('Logout Berhasil', 'Anda telah berhasil logout.');
+          })
+          .catch((error) => {
+            console.error('Error saat logout:', error);
+            showModal('Logout Gagal', `Terjadi kesalahan saat mencoba logout: ${error.message}`);
+          });
+      });
+
 
       // ===============================
       // CRUD Operations with SheetDB API
       // ===============================
+      // (Fungsi fetchData, postData, updateData, deleteData, deleteAllData tetap sama)
 
-      // Fungsi untuk mengambil data dari SheetDB
       async function fetchData() {
+        if (!auth.currentUser || !isUserAuthorized(auth.currentUser)) {
+            tableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4">Silakan login untuk melihat data.</td></tr>';
+            return;
+        }
         try {
           tableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4">Memuat data...</td></tr>';
           const response = await fetch(API_URL);
@@ -330,8 +444,11 @@
         }
       }
 
-      // Fungsi untuk menyimpan data baru
       async function postData(newData) {
+        if (!auth.currentUser || !isUserAuthorized(auth.currentUser)) {
+            showModal('Akses Ditolak', 'Anda harus login untuk menyimpan data.');
+            return;
+        }
         console.log('Mengirim data baru:', newData);
         try {
           const response = await fetch(API_URL, {
@@ -356,8 +473,11 @@
         }
       }
 
-      // Fungsi untuk memperbarui data yang sudah ada
       async function updateData(tanggal, updatedData) {
+        if (!auth.currentUser || !isUserAuthorized(auth.currentUser)) {
+            showModal('Akses Ditolak', 'Anda harus login untuk memperbarui data.');
+            return;
+        }
         console.log(`Memperbarui data untuk tanggal ${tanggal}:`, updatedData);
         try {
           const response = await fetch(`${API_URL}/Tanggal/${tanggal}`, {
@@ -382,8 +502,11 @@
         }
       }
 
-      // Fungsi untuk menghapus data
       async function deleteData(tanggal) {
+        if (!auth.currentUser || !isUserAuthorized(auth.currentUser)) {
+            showModal('Akses Ditolak', 'Anda harus login untuk menghapus data.');
+            return;
+        }
         console.log(`Menghapus data untuk tanggal: ${tanggal}`);
         try {
           const response = await fetch(`${API_URL}/Tanggal/${tanggal}`, {
@@ -401,8 +524,11 @@
         }
       }
 
-      // Fungsi untuk menghapus semua data
       async function deleteAllData() {
+        if (!auth.currentUser || !isUserAuthorized(auth.currentUser)) {
+            showModal('Akses Ditolak', 'Anda harus login untuk menghapus semua data.');
+            return;
+        }
         console.log('Menghapus semua data...');
         if (data.length === 0) {
           showModal('Informasi', 'Tidak ada data untuk dihapus.');
@@ -431,7 +557,7 @@
       }
 
       // ===============================
-      // Render Tabel dan Infografis
+      // Render Tabel dan Infografis (tetap sama)
       // ===============================
       function renderTable() {
         tableBody.innerHTML = '';
@@ -492,7 +618,7 @@
       }
       
       // ===============================
-      // Fungsi Download
+      // Fungsi Download (tetap sama)
       // ===============================
       function download(data, filename, type) {
           const file = new Blob([data], { type: type });
@@ -515,17 +641,14 @@
       }
 
       function downloadXlsx() {
-          // Tambahkan pemeriksaan untuk memastikan library XLSX telah dimuat
           if (typeof XLSX === 'undefined') {
               console.error("XLSX library not loaded!");
               showModal('Error', 'Gagal mengunduh file. Library untuk Excel tidak ditemukan. Silakan muat ulang halaman atau coba lagi nanti.');
               return;
           }
-          // Buat salinan data dan konversi format tanggal
           const formattedData = data.map(row => {
               const newRow = { ...row };
               if (newRow.Tanggal) {
-                  // Jika tanggal adalah nomor seri, ubah ke format yang bisa dibaca
                   if (typeof newRow.Tanggal === 'number' || (typeof newRow.Tanggal === 'string' && !isNaN(Number(newRow.Tanggal)))) {
                       newRow.Tanggal = serialToDate(Number(newRow.Tanggal)).toISOString().split('T')[0];
                   }
@@ -541,7 +664,7 @@
       }
 
       // ===============================
-      // Event Listeners
+      // Event Listeners (tambahan untuk Firebase Auth)
       // ===============================
 
       salesForm.addEventListener('submit', (e) => {
@@ -616,12 +739,10 @@
         renderTable();
       });
 
-      // Event listener untuk tombol download
       downloadJsonBtn.addEventListener('click', downloadJson);
       downloadXlsxBtn.addEventListener('click', downloadXlsx);
 
-      // Ambil data pertama kali saat halaman dimuat
-      fetchData();
+      // fetchData() tidak dipanggil di sini lagi, tapi di onAuthStateChanged
     });
   </script>
 
