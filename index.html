@@ -11,6 +11,8 @@
   <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.2/dist/full.min.css" rel="stylesheet" type="text/css" />
   <!-- Menggunakan Font Awesome untuk ikon -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <!-- Menggunakan library SheetJS untuk export ke Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/sheetjs/dist/xlsx.full.min.js"></script>
 
   <!-- Menggunakan font Inter dari Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -80,7 +82,6 @@
         <div class="card-body">
           <h2 class="card-title text-secondary mb-4">Data Penjualan</h2>
 
-
           <div class="overflow-x-auto">
             <table class="table table-zebra w-full text-base-content">
               <!-- table head -->
@@ -122,6 +123,18 @@
             <button id="reset-data-btn" class="btn btn-warning w-full">Hapus Semua Data</button>
           </div>
 
+          <!-- Tombol Download Data -->
+          <div class="mt-4 text-center">
+            <div class="dropdown dropdown-top dropdown-hover w-full">
+              <div tabindex="0" role="button" class="btn btn-accent w-full">
+                <i class="fa-solid fa-download mr-2"></i> Download Data
+              </div>
+              <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow-lg">
+                <li><a id="download-json-btn">JSON</a></li>
+                <li><a id="download-xlsx-btn">Excel (.xlsx)</a></li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -208,7 +221,7 @@
       </div>
     </dialog>
   </div>
-
+  
   <!-- ======================================== -->
   <!-- JAVASCRIPT UTAMA -->
   <!-- ======================================== -->
@@ -238,7 +251,6 @@
       function serialToDate(serial) {
           // Tanggal awal Excel (1 Januari 1900)
           const excelEpoch = new Date(1900, 0, 1);
-          // 45876 di spreadsheet Anda berarti 45876 hari setelah 1 Januari 1900.
           const date = new Date(excelEpoch.getTime() + (serial - 2) * 24 * 60 * 60 * 1000);
           return date;
       }
@@ -289,6 +301,8 @@
       const resetDataBtn = document.getElementById('reset-data-btn');
       const sortBtn = document.getElementById('sort-btn');
       const sortIcon = document.getElementById('sort-icon');
+      const downloadJsonBtn = document.getElementById('download-json-btn');
+      const downloadXlsxBtn = document.getElementById('download-xlsx-btn');
 
       let data = [];
       let editingRow = null;
@@ -318,7 +332,6 @@
 
       // Fungsi untuk menyimpan data baru
       async function postData(newData) {
-        // Log data yang akan dikirim untuk debugging
         console.log('Mengirim data baru:', newData);
         try {
           const response = await fetch(API_URL, {
@@ -327,11 +340,9 @@
             body: JSON.stringify({ data: newData })
           });
           if (response.status === 400) {
-            // Perbaikan untuk Error HTTP: 400
-            // Error ini sering terjadi karena nama kolom di spreadsheet tidak cocok.
             const errorText = await response.text();
             console.error('API SheetDB mengembalikan error 400:', errorText);
-            throw new Error(`Error HTTP: ${response.status}. Periksa nama kolom (Tanggal, N2, Tambal) di Google Spreadsheet Anda, mereka harus sama persis dengan yang ada di kode.`);
+            throw new Error(`Error HTTP: ${response.status}. Periksa nama kolom (Tanggal, N2, Tambal) di Google Spreadsheet Anda.`);
           }
           if (!response.ok) {
             throw new Error(`Error HTTP: ${response.status}`);
@@ -349,7 +360,6 @@
       async function updateData(tanggal, updatedData) {
         console.log(`Memperbarui data untuk tanggal ${tanggal}:`, updatedData);
         try {
-          // Asumsi 'Tanggal' adalah kunci unik untuk pembaruan
           const response = await fetch(`${API_URL}/Tanggal/${tanggal}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -376,7 +386,6 @@
       async function deleteData(tanggal) {
         console.log(`Menghapus data untuk tanggal: ${tanggal}`);
         try {
-          // Asumsi 'Tanggal' adalah kunci unik untuk penghapusan
           const response = await fetch(`${API_URL}/Tanggal/${tanggal}`, {
             method: 'DELETE'
           });
@@ -395,14 +404,12 @@
       // Fungsi untuk menghapus semua data
       async function deleteAllData() {
         console.log('Menghapus semua data...');
-        // Jika tidak ada data, tampilkan pesan dan keluar
         if (data.length === 0) {
           showModal('Informasi', 'Tidak ada data untuk dihapus.');
           return;
         }
 
         try {
-          // Mengambil semua promise penghapusan
           const deletePromises = data.map(row => {
             return fetch(`${API_URL}/Tanggal/${row.Tanggal}`, {
               method: 'DELETE'
@@ -414,7 +421,6 @@
             });
           });
 
-          // Tunggu sampai semua promise selesai
           await Promise.all(deletePromises);
           showModal('Berhasil', 'Semua data berhasil dihapus!');
           await fetchData();
@@ -485,6 +491,55 @@
         sisaTarget.classList.toggle('text-green-400', remainingTarget <= 0);
       }
       
+      // ===============================
+      // Fungsi Download
+      // ===============================
+      function download(data, filename, type) {
+          const file = new Blob([data], { type: type });
+          const a = document.createElement('a');
+          const url = URL.createObjectURL(file);
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+              document.body.removeChild(a);
+              window.URL.revokeObjectURL(url);
+          }, 0);
+      }
+
+      function downloadJson() {
+          const formattedData = JSON.stringify(data, null, 2);
+          download(formattedData, 'data_penjualan.json', 'text/json');
+          showModal('Berhasil', 'File JSON berhasil diunduh!');
+      }
+
+      function downloadXlsx() {
+          // Tambahkan pemeriksaan untuk memastikan library XLSX telah dimuat
+          if (typeof XLSX === 'undefined') {
+              console.error("XLSX library not loaded!");
+              showModal('Error', 'Gagal mengunduh file. Library untuk Excel tidak ditemukan. Silakan muat ulang halaman atau coba lagi nanti.');
+              return;
+          }
+          // Buat salinan data dan konversi format tanggal
+          const formattedData = data.map(row => {
+              const newRow = { ...row };
+              if (newRow.Tanggal) {
+                  // Jika tanggal adalah nomor seri, ubah ke format yang bisa dibaca
+                  if (typeof newRow.Tanggal === 'number' || (typeof newRow.Tanggal === 'string' && !isNaN(Number(newRow.Tanggal)))) {
+                      newRow.Tanggal = serialToDate(Number(newRow.Tanggal)).toISOString().split('T')[0];
+                  }
+              }
+              return newRow;
+          });
+
+          const worksheet = XLSX.utils.json_to_sheet(formattedData);
+          const workbook = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(workbook, worksheet, "Data Penjualan");
+          XLSX.writeFile(workbook, "data_penjualan.xlsx");
+          showModal('Berhasil', 'File Excel berhasil diunduh!');
+      }
+
       // ===============================
       // Event Listeners
       // ===============================
@@ -560,6 +615,10 @@
         sortIcon.classList.toggle('fa-sort-down', sortOrder === 'desc');
         renderTable();
       });
+
+      // Event listener untuk tombol download
+      downloadJsonBtn.addEventListener('click', downloadJson);
+      downloadXlsxBtn.addEventListener('click', downloadXlsx);
 
       // Ambil data pertama kali saat halaman dimuat
       fetchData();
