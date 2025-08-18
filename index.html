@@ -1,459 +1,569 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Pencatat Target</title>
-    <!-- Memuat Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Memuat Font Inter dari Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Memuat ikon (Heroicons) -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/heroicons/2.1.1/24/outline/heroicons.min.css" rel="stylesheet">
-    <style>
-        /* Menggunakan font Inter sebagai default */
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        /* Style untuk modal agar lebih baik */
-        .modal-backdrop {
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-        /* Animasi spinner untuk loading */
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, .1);
-            border-left-color: #4f46e5;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Penjualan</title>
+
+  <!-- Menggunakan Tailwind CSS dari CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Menggunakan DaisyUI dari CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+  <!-- Menggunakan Font Awesome untuk ikon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+  <!-- Menggunakan font Inter dari Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Mengatur font global */
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800 p-4 sm:p-6 md:p-8">
+<body class="min-h-screen p-4 md:p-8 bg-base-200 text-base-content">
 
-    <div class="max-w-5xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
-        
-        <header class="mb-8 text-center">
-            <h1 class="text-3xl font-bold text-gray-900">Data Target</h1>
-            <p class="text-gray-500 mt-1">Catat dan lacak progres target keuangan Anda.</p>
-        </header>
+  <!-- Main container dengan layout responsif -->
+  <div class="container mx-auto space-y-8">
+    <header class="text-center py-4">
+      <h1 class="text-4xl md:text-5xl font-extrabold text-primary mb-2">Dashboard Penjualan</h1>
+      <p class="text-sm md:text-md text-base-content/80">Monitor data penjualan harian Anda dengan mudah.</p>
+    </header>
 
-        <!-- Bagian Input Data -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 p-6 bg-gray-50 rounded-xl border border-gray-200">
+    <!-- ======================================== -->
+    <!-- SECTION 1: INPUT DATA -->
+    <!-- ======================================== -->
+    <section>
+      <div class="card bg-base-100 shadow-xl rounded-2xl">
+        <div class="card-body">
+          <h2 class="card-title text-secondary mb-4">Input Data Penjualan</h2>
+          <form id="sales-form" class="space-y-4">
+            <!-- Input Tanggal -->
             <div>
-                <label for="tanggal" class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
-                <input type="date" id="tanggal" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+              <label for="tanggal" class="label">
+                <span class="label-text font-semibold">Tanggal</span>
+              </label>
+              <input type="date" id="tanggal" class="input input-bordered input-primary w-full" required>
             </div>
-            <div>
-                <label for="n2" class="block text-sm font-medium text-gray-700 mb-1">N2 (Wajib)</label>
-                <input type="text" id="n2" placeholder="Contoh: 20" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+            
+            <!-- Input N2 & Tambal -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="n2" class="label">
+                  <span class="label-text font-semibold">N2</span>
+                </label>
+                <input type="number" id="n2" class="input input-bordered input-secondary w-full" placeholder="Rp 10.000" required>
+              </div>
+              <div>
+                <label for="tambal" class="label">
+                  <span class="label-text font-semibold">Tambal</span>
+                </label>
+                <input type="number" id="tambal" class="input input-bordered input-secondary w-full" placeholder="Rp 0">
+              </div>
             </div>
-            <div>
-                <label for="tambal" class="block text-sm font-medium text-gray-700 mb-1">Tambal</label>
-                <input type="text" id="tambal" placeholder="Contoh: 5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
-            </div>
+
+            <!-- Tombol Simpan/Update Data -->
+            <button type="submit" id="btn-submit" class="btn btn-primary w-full mt-4">Simpan Data</button>
+          </form>
         </div>
+      </div>
+    </section>
 
-        <!-- Bagian Tombol Aksi -->
-        <div class="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
-            <button id="simpanBtn" class="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105">Simpan Data</button>
-            <button id="resetBtn" class="w-full bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-transform transform hover:scale-105">Reset Data</button>
-            <button id="downloadBtn" class="w-full bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-transform transform hover:scale-105">Download</button>
-            <button id="targetBtn" class="w-full bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-transform transform hover:scale-105">Target</button>
-            <button id="analisisBtn" class="w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-transform transform hover:scale-105">✨ Analisis</button>
-            <button id="rencanaBtn" class="w-full bg-teal-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-transform transform hover:scale-105">✨ Rencana Aksi</button>
-        </div>
+    <!-- ======================================== -->
+    <!-- SECTION 2: TABEL DATA -->
+    <!-- ======================================== -->
+    <section>
+      <div class="card bg-base-100 shadow-xl rounded-2xl">
+        <div class="card-body">
+          <h2 class="card-title text-secondary mb-4">Data Penjualan</h2>
 
-        <!-- Bagian Tabel Data -->
-        <div class="overflow-x-auto rounded-lg border border-gray-200 mb-8">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">N2</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tambal</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">N2 + Tambal</th>
-                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="dataTableBody" class="bg-white divide-y divide-gray-200">
-                    <!-- Data akan diisi oleh JavaScript -->
-                </tbody>
-                <tfoot class="bg-gray-100 font-bold">
-                    <tr id="totalRow">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Total</td>
-                        <td id="totalN2" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rp 0,00</td>
-                        <td id="totalTambal" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rp 0,00</td>
-                        <td id="totalKeseluruhan" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" colspan="2">Rp 0,00</td>
-                    </tr>
-                </tfoot>
+          <div class="overflow-x-auto">
+            <table class="table table-zebra w-full text-base-content">
+              <!-- table head -->
+              <thead>
+                <tr class="bg-base-300">
+                  <th class="py-3">
+                    Tanggal
+                    <!-- Tombol untuk mengubah urutan sorting -->
+                    <button id="sort-btn" class="btn btn-ghost btn-sm">
+                      <i id="sort-icon" class="fa-solid fa-sort-down"></i>
+                    </button>
+                  </th>
+                  <th class="py-3">N2 (Rp)</th>
+                  <th class="py-3">Tambal (Rp)</th>
+                  <th class="py-3">Total (Rp)</th>
+                  <th class="py-3">Aksi</th>
+                </tr>
+              </thead>
+              <!-- table body -->
+              <tbody id="table-body">
+                <!-- Data akan di-render secara dinamis -->
+                <tr><td colspan="5" class="text-center py-4">Memuat data...</td></tr>
+              </tbody>
+              <!-- table footer -->
+              <tfoot class="font-bold bg-base-300">
+                <tr>
+                  <td>Total</td>
+                  <td id="total-n2">Rp 0</td>
+                  <td id="total-tambal">Rp 0</td>
+                  <td id="total-keseluruhan">Rp 0</td>
+                  <td></td>
+                </tr>
+              </tfoot>
             </table>
-        </div>
+          </div>
+          
+          <!-- Tombol Hapus Semua Data -->
+          <div class="mt-4 text-center">
+            <button id="reset-data-btn" class="btn btn-warning w-full">Hapus Semua Data</button>
+          </div>
 
-        <!-- Bagian Dashboard -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-blue-100 p-6 rounded-xl text-center">
-                <h3 class="text-lg font-semibold text-blue-800">Sisa Target</h3>
-                <p id="sisaTarget" class="text-2xl font-bold text-blue-900 mt-2">Rp 0,00</p>
-            </div>
-            <div class="bg-green-100 p-6 rounded-xl text-center">
-                <h3 class="text-lg font-semibold text-green-800">Jumlah N2</h3>
-                <p id="dashboardTotalN2" class="text-2xl font-bold text-green-900 mt-2">Rp 0,00</p>
-            </div>
-            <div class="bg-yellow-100 p-6 rounded-xl text-center">
-                <h3 class="text-lg font-semibold text-yellow-800">Jumlah Tambal</h3>
-                <p id="dashboardTotalTambal" class="text-2xl font-bold text-yellow-900 mt-2">Rp 0,00</p>
-            </div>
         </div>
-    </div>
+      </div>
+    </section>
 
-    <!-- Modal untuk Edit Data -->
-    <div id="editModal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop hidden">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-lg mx-4 transform transition-all">
-            <h2 class="text-2xl font-bold mb-6 text-center">Edit Data</h2>
-            <input type="hidden" id="editIndex">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label for="editTanggal" class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
-                    <input type="date" id="editTanggal" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label for="editN2" class="block text-sm font-medium text-gray-700 mb-1">N2</label>
-                    <input type="text" id="editN2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label for="editTambal" class="block text-sm font-medium text-gray-700 mb-1">Tambal</label>
-                    <input type="text" id="editTambal" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                </div>
-            </div>
-            <div class="mt-8 flex justify-end gap-4">
-                <button id="batalEditBtn" class="px-6 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition">Batal</button>
-                <button id="simpanEditBtn" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">Simpan Perubahan</button>
-            </div>
-        </div>
-    </div>
+    <!-- ======================================== -->
+    <!-- SECTION 3: INFOGRAFIS -->
+    <!-- ======================================== -->
+    <section>
+      <div class="card bg-base-100 shadow-xl rounded-2xl">
+        <div class="card-body">
+          <h2 class="card-title text-secondary mb-4">Ringkasan Penjualan</h2>
 
-    <!-- Modal untuk Analisis Gemini -->
-    <div id="analisisModal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop hidden">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-lg mx-4 transform transition-all max-h-[80vh] flex flex-col">
-            <h2 class="text-2xl font-bold mb-4 text-center text-indigo-700">✨ Analisis Keuangan</h2>
-            <div id="analisisContent" class="flex-grow overflow-y-auto pr-4 text-gray-700 space-y-3"></div>
-            <div class="mt-6 flex justify-center">
-                 <button id="tutupAnalisisBtn" class="px-8 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition">Tutup</button>
+          <!-- Menggunakan komponen stats dari DaisyUI -->
+          <div class="stats stats-vertical md:stats-horizontal bg-base-300 shadow-lg text-center rounded-box w-full">
+            <div class="stat">
+              <div class="stat-title">Jumlah Data</div>
+              <div id="inf-jumlah" class="stat-value text-green-400">0</div>
             </div>
-        </div>
-    </div>
+            <div class="stat">
+              <div class="stat-title">Total N2</div>
+              <div id="inf-n2" class="stat-value text-yellow-400">Rp 0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-title">Total Tambal</div>
+              <div id="inf-tambal" class="stat-value text-yellow-400">Rp 0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-title">Total Keseluruhan</div>
+              <div id="inf-keseluruhan" class="stat-value text-cyan-400">Rp 0</div>
+            </div>
+          </div>
 
-    <!-- Modal untuk Rencana Aksi Gemini -->
-    <div id="rencanaModal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop hidden">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-lg mx-4 transform transition-all max-h-[80vh] flex flex-col">
-            <h2 class="text-2xl font-bold mb-4 text-center text-teal-700">✨ Rencana Aksi Menuju Target</h2>
-            <div id="rencanaContent" class="flex-grow overflow-y-auto pr-4 text-gray-700 space-y-3"></div>
-            <div class="mt-6 flex justify-center">
-                 <button id="tutupRencanaBtn" class="px-8 py-2 bg-teal-600 text-white font-semibold rounded-lg hover:bg-teal-700 transition">Tutup</button>
-            </div>
-        </div>
-    </div>
+          <!-- Input Target -->
+          <div class="mt-8">
+            <label for="target" class="label">
+              <span class="label-text font-semibold">Target Penjualan</span>
+            </label>
+            <input type="number" id="target" class="input input-bordered w-full" placeholder="Masukkan target">
+          </div>
 
-    <!-- Modal untuk Mengatur Target -->
-    <div id="targetModal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop hidden">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm mx-4 transform transition-all">
-            <h2 class="text-2xl font-bold mb-6 text-center text-purple-700">Atur Target Keuangan</h2>
-            <div>
-                <label for="editTarget" class="block text-sm font-medium text-gray-700 mb-1">Target (Dalam Ribuan)</label>
-                <input type="text" id="editTarget" placeholder="Contoh: 10000" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+          <!-- Sisa Target -->
+          <div class="mt-4 stats shadow-lg bg-base-300 rounded-box text-center">
+            <div class="stat">
+              <div class="stat-title">Sisa Target</div>
+              <div id="sisa-target" class="stat-value text-red-400">Rp 0</div>
             </div>
-            <div class="mt-8 flex justify-end gap-4">
-                <button id="batalTargetBtn" class="px-6 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition">Batal</button>
-                <button id="simpanTargetBtn" class="px-6 py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition">Simpan Target</button>
-            </div>
+          </div>
         </div>
-    </div>
+      </div>
+    </section>
+
+    <!-- Modal Konfirmasi Hapus -->
+    <dialog id="delete_modal" class="modal">
+      <div class="modal-box bg-base-100 rounded-2xl">
+        <h3 class="font-bold text-lg text-primary">Konfirmasi Hapus</h3>
+        <p class="py-4">Apakah Anda yakin ingin menghapus data ini?</p>
+        <div class="modal-action">
+          <button id="confirm-delete" class="btn btn-error">Ya, Hapus</button>
+          <button class="btn" onclick="document.getElementById('delete_modal').close()">Batal</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Modal Konfirmasi Hapus Semua Data -->
+    <dialog id="reset_modal" class="modal">
+      <div class="modal-box bg-base-100 rounded-2xl">
+        <h3 class="font-bold text-lg text-error">PERINGATAN!</h3>
+        <p class="py-4">Tindakan ini akan **menghapus semua data** di spreadsheet Anda. Apakah Anda yakin ingin melanjutkan?</p>
+        <div class="modal-action">
+          <button id="confirm-reset" class="btn btn-error">Ya, Hapus Semua</button>
+          <button class="btn" onclick="document.getElementById('reset_modal').close()">Batal</button>
+        </div>
+      </div>
+    </dialog>
     
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- Referensi Elemen DOM ---
-            const simpanBtn = document.getElementById('simpanBtn');
-            const resetBtn = document.getElementById('resetBtn');
-            const downloadBtn = document.getElementById('downloadBtn');
-            const targetBtn = document.getElementById('targetBtn');
-            const analisisBtn = document.getElementById('analisisBtn');
-            const rencanaBtn = document.getElementById('rencanaBtn');
-            const dataTableBody = document.getElementById('dataTableBody');
-            
-            // Input utama
-            const tanggalInput = document.getElementById('tanggal');
-            const n2Input = document.getElementById('n2');
-            const tambalInput = document.getElementById('tambal');
-            
-            // Dashboard & Total
-            const totalN2El = document.getElementById('totalN2');
-            const totalTambalEl = document.getElementById('totalTambal');
-            const totalKeseluruhanEl = document.getElementById('totalKeseluruhan');
-            const sisaTargetEl = document.getElementById('sisaTarget');
-            const dashboardTotalN2El = document.getElementById('dashboardTotalN2');
-            const dashboardTotalTambalEl = document.getElementById('dashboardTotalTambal');
+    <!-- Modal Pemberitahuan -->
+    <dialog id="info_modal" class="modal">
+      <div class="modal-box bg-base-100 rounded-2xl">
+        <h3 id="info-title" class="font-bold text-lg text-primary">Pemberitahuan</h3>
+        <p id="info-message" class="py-4">Pesan Anda di sini.</p>
+        <div class="modal-action">
+          <button class="btn" onclick="document.getElementById('info_modal').close()">OK</button>
+        </div>
+      </div>
+    </dialog>
+  </div>
 
-            // --- Modal Edit ---
-            const editModal = document.getElementById('editModal');
-            const editIndexInput = document.getElementById('editIndex');
-            const editTanggalInput = document.getElementById('editTanggal');
-            const editN2Input = document.getElementById('editN2');
-            const editTambalInput = document.getElementById('editTambal');
-            const simpanEditBtn = document.getElementById('simpanEditBtn');
-            const batalEditBtn = document.getElementById('batalEditBtn');
-            
-            // --- Modal Analisis ---
-            const analisisModal = document.getElementById('analisisModal');
-            const analisisContent = document.getElementById('analisisContent');
-            const tutupAnalisisBtn = document.getElementById('tutupAnalisisBtn');
+  <!-- ======================================== -->
+  <!-- JAVASCRIPT UTAMA -->
+  <!-- ======================================== -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
 
-            // --- Modal Rencana Aksi ---
-            const rencanaModal = document.getElementById('rencanaModal');
-            const rencanaContent = document.getElementById('rencanaContent');
-            const tutupRencanaBtn = document.getElementById('tutupRencanaBtn');
-            
-            // --- Modal Target (BARU) ---
-            const targetModal = document.getElementById('targetModal');
-            const editTargetInput = document.getElementById('editTarget');
-            const simpanTargetBtn = document.getElementById('simpanTargetBtn');
-            const batalTargetBtn = document.getElementById('batalTargetBtn');
-            
-            // --- State Aplikasi ---
-            let data = JSON.parse(localStorage.getItem('dataTarget')) || [];
-            let target = parseFloat(localStorage.getItem('targetValue')) || 0;
+      // URL API dari SheetDB.io
+      const API_URL = 'https://sheetdb.io/api/v1/rjpiyt4i6zpw2'; 
 
-            // --- Fungsi Utilitas ---
-            const formatCurrency = (value) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 2 }).format(isNaN(value) ? 0 : value).replace('Rp', 'Rp ');
-            const parseInputToNumber = (str) => str ? parseFloat(str.replace(/[^0-9]/g, '')) * 1000 : 0;
-            const formatNumberForInput = (num) => num ? new Intl.NumberFormat('id-ID').format(num / 1000) : '';
-            const handleCurrencyInput = (e) => {
-                let value = e.target.value.replace(/\D/g, '');
-                e.target.value = value ? new Intl.NumberFormat('id-ID').format(value) : '';
-            };
-            
-            // --- Logika Utama ---
-            const render = () => {
-                dataTableBody.innerHTML = '';
-                let totalN2 = 0;
-                let totalTambal = 0;
-
-                data.forEach((item, index) => {
-                    totalN2 += item.n2;
-                    totalTambal += item.tambal;
-                    const totalItem = item.n2 + item.tambal;
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${item.tanggal}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${formatCurrency(item.n2)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${formatCurrency(item.tambal)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">${formatCurrency(totalItem)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                            <button class="edit-btn text-indigo-600 hover:text-indigo-900" data-index="${index}" title="Edit"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg></button>
-                            <button class="delete-btn text-red-600 hover:text-red-900 ml-4" data-index="${index}" title="Hapus"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.134-2.033-2.134H8.033C6.91 2.75 6 3.704 6 4.884v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg></button>
-                        </td>
-                    `;
-                    dataTableBody.appendChild(row);
-                });
-
-                const totalKeseluruhan = totalN2 + totalTambal;
-                totalN2El.textContent = formatCurrency(totalN2);
-                totalTambalEl.textContent = formatCurrency(totalTambal);
-                totalKeseluruhanEl.textContent = formatCurrency(totalKeseluruhan);
-
-                const sisaTarget = target - totalKeseluruhan;
-                sisaTargetEl.textContent = formatCurrency(sisaTarget);
-                dashboardTotalN2El.textContent = formatCurrency(totalN2);
-                dashboardTotalTambalEl.textContent = formatCurrency(totalTambal);
-                
-                sisaTargetEl.parentElement.classList.toggle('bg-red-100', sisaTarget < 0);
-                sisaTargetEl.parentElement.classList.toggle('bg-blue-100', sisaTarget >= 0);
-                sisaTargetEl.classList.toggle('text-red-900', sisaTarget < 0);
-                sisaTargetEl.classList.toggle('text-blue-900', sisaTarget >= 0);
-            };
-
-            const saveData = () => {
-                localStorage.setItem('dataTarget', JSON.stringify(data));
-                localStorage.setItem('targetValue', target);
-            };
-
-            const addData = () => {
-                if (!n2Input.value.trim()) { alert('Input N2 wajib diisi.'); n2Input.focus(); return; }
-                data.push({
-                    tanggal: tanggalInput.value || new Date().toISOString().split('T')[0],
-                    n2: parseInputToNumber(n2Input.value),
-                    tambal: parseInputToNumber(tambalInput.value)
-                });
-                tanggalInput.value = n2Input.value = tambalInput.value = '';
-                saveData(); render();
-            };
-
-            const openEditModal = (index) => {
-                const item = data[index];
-                editIndexInput.value = index;
-                editTanggalInput.value = item.tanggal;
-                editN2Input.value = formatNumberForInput(item.n2);
-                editTambalInput.value = formatNumberForInput(item.tambal);
-                editModal.classList.remove('hidden');
-            };
-
-            const saveEditData = () => {
-                const index = parseInt(editIndexInput.value);
-                if (isNaN(index)) return;
-                if (!editN2Input.value.trim()) { alert('Input N2 wajib diisi.'); editN2Input.focus(); return; }
-                data[index] = {
-                    tanggal: editTanggalInput.value,
-                    n2: parseInputToNumber(editN2Input.value),
-                    tambal: parseInputToNumber(editTambalInput.value)
-                };
-                saveData(); render(); editModal.classList.add('hidden');
-            };
-
-            const deleteData = (index) => {
-                if (confirm(`Yakin ingin menghapus data pada tanggal ${data[index].tanggal}?`)) {
-                    data.splice(index, 1);
-                    saveData(); render();
-                }
-            };
-            
-            // --- Logika Gemini API ---
-            const callGeminiAPI = async (prompt, contentElement, modalElement) => {
-                modalElement.classList.remove('hidden');
-                contentElement.innerHTML = `<div class="flex justify-center items-center"><div class="spinner"></div></div>`;
-                
-                try {
-                    const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
-                    const payload = { contents: chatHistory };
-                    const apiKey = ""; // Disediakan oleh environment
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-                    
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    if (!response.ok) throw new Error(`API Error: ${response.status}`);
-                    
-                    const result = await response.json();
-                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                    
-                    if (text) {
-                        contentElement.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\* (.*?)(<br>|$)/g, '<li class="ml-4 list-disc">$1</li>');
-                    } else {
-                        throw new Error("Respons API tidak valid.");
-                    }
-                } catch (error) {
-                    console.error("Gemini API Error:", error);
-                    contentElement.innerHTML = `<p class="text-red-600">Terjadi kesalahan saat mengambil data. Coba lagi nanti.</p>`;
-                }
-            };
-
-            const getFinancialAnalysis = () => {
-                if (data.length === 0) { alert("Masukkan data terlebih dahulu."); return; }
-                const totalPemasukan = data.reduce((sum, item) => sum + item.n2 + item.tambal, 0);
-                const prompt = `Anda adalah penasihat keuangan. Berikan analisis singkat, 3 tips praktis, dan 1 pesan motivasi berdasarkan data: Target ${formatCurrency(target)}, Total Pemasukan ${formatCurrency(totalPemasukan)}. Jawab dalam Bahasa Indonesia.`;
-                callGeminiAPI(prompt, analisisContent, analisisModal);
-            };
-
-            const getActionPlan = () => {
-                const totalPemasukan = data.reduce((sum, item) => sum + item.n2 + item.tambal, 0);
-                const sisa = target - totalPemasukan;
-                if (target <= 0) { alert("Tetapkan target terlebih dahulu."); return; }
-                if (sisa <= 0) { alert("Selamat, target Anda sudah tercapai! Tidak perlu rencana aksi."); return; }
-                const prompt = `Anda adalah perencana keuangan. Buatkan rencana aksi sederhana dalam bentuk poin-poin untuk mencapai sisa target sebesar ${formatCurrency(sisa)}. Berikan ide-ide kreatif dan mudah diikuti. Jawab dalam Bahasa Indonesia.`;
-                callGeminiAPI(prompt, rencanaContent, rencanaModal);
-            };
-            
-            // --- Fungsi Target (BARU) ---
-            const openTargetModal = () => {
-                // Tampilkan target saat ini di input modal
-                editTargetInput.value = formatNumberForInput(target);
-                targetModal.classList.remove('hidden');
-            };
-            
-            const saveTarget = () => {
-                // Ambil nilai dari input, parse ke angka, simpan, dan render ulang
-                target = parseInputToNumber(editTargetInput.value);
-                saveData();
-                render();
-                targetModal.classList.add('hidden');
-            };
-
-            // --- Fungsi Download (BARU) ---
-            const downloadAsCSV = () => {
-                if (data.length === 0) {
-                    alert("Tidak ada data untuk diunduh.");
-                    return;
-                }
-                const headers = ["Tanggal", "N2", "Tambal", "Total"];
-                const csvRows = [headers.join(',')];
-                
-                data.forEach(item => {
-                    const total = item.n2 + item.tambal;
-                    const row = [
-                        `"${item.tanggal}"`,
-                        `"${item.n2}"`,
-                        `"${item.tambal}"`,
-                        `"${total}"`
-                    ].join(',');
-                    csvRows.push(row);
-                });
-
-                const csvString = csvRows.join('\n');
-                const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                
-                if (link.download !== undefined) {
-                    const url = URL.createObjectURL(blob);
-                    link.setAttribute('href', url);
-                    link.setAttribute('download', `data_target_${new Date().toISOString().split('T')[0]}.csv`);
-                    link.style.visibility = 'hidden';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                } else {
-                    alert('Browser Anda tidak mendukung pengunduhan otomatis.');
-                }
-            };
-
-            // --- Event Listeners ---
-            simpanBtn.addEventListener('click', addData);
-            resetBtn.addEventListener('click', () => { if(confirm('Yakin reset semua data?')) { data = []; target = 0; saveData(); render(); }});
-            dataTableBody.addEventListener('click', (e) => {
-                if (e.target.closest('.edit-btn')) openEditModal(parseInt(e.target.closest('.edit-btn').dataset.index));
-                if (e.target.closest('.delete-btn')) deleteData(parseInt(e.target.closest('.delete-btn').dataset.index));
-            });
-            simpanEditBtn.addEventListener('click', saveEditData);
-            batalEditBtn.addEventListener('click', () => editModal.classList.add('hidden'));
-            
-            analisisBtn.addEventListener('click', getFinancialAnalysis);
-            tutupAnalisisBtn.addEventListener('click', () => analisisModal.classList.add('hidden'));
-            
-            rencanaBtn.addEventListener('click', getActionPlan);
-            tutupRencanaBtn.addEventListener('click', () => rencanaModal.classList.add('hidden'));
-            
-            // Event listener untuk tombol dan modal Target
-            targetBtn.addEventListener('click', openTargetModal);
-            simpanTargetBtn.addEventListener('click', saveTarget);
-            batalTargetBtn.addEventListener('click', () => targetModal.classList.add('hidden'));
-            editTargetInput.addEventListener('input', handleCurrencyInput);
-
-            // Event listener untuk tombol Download
-            downloadBtn.addEventListener('click', downloadAsCSV);
-
-            [tanggalInput, n2Input, tambalInput, editN2Input, editTambalInput].forEach(input => {
-                if(input.type === 'text') input.addEventListener('input', handleCurrencyInput);
-            });
-            
-            // Inisialisasi
-            render();
+      // ===============================
+      // Utility: Format Rupiah & Tanggal
+      // ===============================
+      function formatRupiah(num) {
+        return 'Rp ' + (num || 0).toLocaleString('id-ID', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
         });
-    </script>
+      }
+
+      function showModal(title, message) {
+        document.getElementById('info-title').textContent = title;
+        document.getElementById('info-message').textContent = message;
+        document.getElementById('info_modal').showModal();
+      }
+      
+      // Fungsi untuk mengonversi nomor seri Excel menjadi tanggal
+      function serialToDate(serial) {
+          // Tanggal awal Excel (1 Januari 1900)
+          const excelEpoch = new Date(1900, 0, 1);
+          // 45876 di spreadsheet Anda berarti 45876 hari setelah 1 Januari 1900.
+          const date = new Date(excelEpoch.getTime() + (serial - 2) * 24 * 60 * 60 * 1000);
+          return date;
+      }
+      
+      // Fungsi untuk format tanggal yang lebih kuat
+      function formatDate(dateValue) {
+          let date;
+          // Cek jika datanya adalah nomor seri
+          if (typeof dateValue === 'number' || (typeof dateValue === 'string' && !isNaN(Number(dateValue)))) {
+              date = serialToDate(Number(dateValue));
+          } else {
+              // Jika datanya sudah dalam format YYYY-MM-DD
+              const parts = dateValue.split('-');
+              if (parts.length === 3) {
+                  const year = parseInt(parts[0], 10);
+                  const month = parseInt(parts[1], 10) - 1; 
+                  const day = parseInt(parts[2], 10);
+                  date = new Date(year, month, day);
+              } else {
+                  // Jika format tidak dikenali, kembalikan nilai aslinya
+                  return dateValue;
+              }
+          }
+          
+          const options = { year: 'numeric', month: 'long', day: 'numeric' };
+          return date.toLocaleDateString('id-ID', options);
+      }
+
+      // ===============================
+      // DOM Elements & State Management
+      // ===============================
+      const tableBody = document.getElementById('table-body');
+      const totalN2 = document.getElementById('total-n2');
+      const totalTambal = document.getElementById('total-tambal');
+      const totalKeseluruhan = document.getElementById('total-keseluruhan');
+      const infJumlah = document.getElementById('inf-jumlah');
+      const infN2 = document.getElementById('inf-n2');
+      const infTambal = document.getElementById('inf-tambal');
+      const infKeseluruhan = document.getElementById('inf-keseluruhan');
+      const inputTarget = document.getElementById('target');
+      const sisaTarget = document.getElementById('sisa-target');
+      const salesForm = document.getElementById('sales-form');
+      const btnSubmit = document.getElementById('btn-submit');
+      const deleteModal = document.getElementById('delete_modal');
+      const resetModal = document.getElementById('reset_modal');
+      const confirmDeleteBtn = document.getElementById('confirm-delete');
+      const confirmResetBtn = document.getElementById('confirm-reset');
+      const resetDataBtn = document.getElementById('reset-data-btn');
+      const sortBtn = document.getElementById('sort-btn');
+      const sortIcon = document.getElementById('sort-icon');
+
+      let data = [];
+      let editingRow = null;
+      let rowToDeleteTanggal = null;
+      let sortOrder = 'desc';
+
+      // ===============================
+      // CRUD Operations with SheetDB API
+      // ===============================
+
+      // Fungsi untuk mengambil data dari SheetDB
+      async function fetchData() {
+        try {
+          tableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4">Memuat data...</td></tr>';
+          const response = await fetch(API_URL);
+          if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+          }
+          data = await response.json();
+          renderTable();
+        } catch (error) {
+          console.error('Error saat mengambil data:', error);
+          showModal('Error', 'Gagal mengambil data dari SheetDB. Pastikan URL API benar.');
+          tableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-error">Gagal memuat data.</td></tr>';
+        }
+      }
+
+      // Fungsi untuk menyimpan data baru
+      async function postData(newData) {
+        // Log data yang akan dikirim untuk debugging
+        console.log('Mengirim data baru:', newData);
+        try {
+          const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: newData })
+          });
+          if (response.status === 400) {
+            // Perbaikan untuk Error HTTP: 400
+            // Error ini sering terjadi karena nama kolom di spreadsheet tidak cocok.
+            const errorText = await response.text();
+            console.error('API SheetDB mengembalikan error 400:', errorText);
+            throw new Error(`Error HTTP: ${response.status}. Periksa nama kolom (Tanggal, N2, Tambal) di Google Spreadsheet Anda, mereka harus sama persis dengan yang ada di kode.`);
+          }
+          if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+          }
+          await response.json();
+          showModal('Berhasil', 'Data berhasil disimpan!');
+          await fetchData();
+        } catch (error) {
+          console.error('Error saat menyimpan data:', error);
+          showModal('Gagal', `Gagal menyimpan data: ${error.message}`);
+        }
+      }
+
+      // Fungsi untuk memperbarui data yang sudah ada
+      async function updateData(tanggal, updatedData) {
+        console.log(`Memperbarui data untuk tanggal ${tanggal}:`, updatedData);
+        try {
+          // Asumsi 'Tanggal' adalah kunci unik untuk pembaruan
+          const response = await fetch(`${API_URL}/Tanggal/${tanggal}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: updatedData })
+          });
+          if (response.status === 400) {
+            const errorText = await response.text();
+            console.error('API SheetDB mengembalikan error 400:', errorText);
+            throw new Error(`Error HTTP: ${response.status}. Periksa nama kolom (Tanggal, N2, Tambal) di Google Spreadsheet Anda.`);
+          }
+          if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+          }
+          await response.json();
+          showModal('Berhasil', 'Data berhasil diperbarui!');
+          await fetchData();
+        } catch (error) {
+          console.error('Error saat memperbarui data:', error);
+          showModal('Gagal', `Gagal memperbarui data: ${error.message}`);
+        }
+      }
+
+      // Fungsi untuk menghapus data
+      async function deleteData(tanggal) {
+        console.log(`Menghapus data untuk tanggal: ${tanggal}`);
+        try {
+          // Asumsi 'Tanggal' adalah kunci unik untuk penghapusan
+          const response = await fetch(`${API_URL}/Tanggal/${tanggal}`, {
+            method: 'DELETE'
+          });
+          if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+          }
+          await response.json();
+          showModal('Berhasil', 'Data berhasil dihapus!');
+          await fetchData();
+        } catch (error) {
+          console.error('Error saat menghapus data:', error);
+          showModal('Gagal', `Gagal menghapus data: ${error.message}`);
+        }
+      }
+
+      // Fungsi untuk menghapus semua data
+      async function deleteAllData() {
+        console.log('Menghapus semua data...');
+        // Jika tidak ada data, tampilkan pesan dan keluar
+        if (data.length === 0) {
+          showModal('Informasi', 'Tidak ada data untuk dihapus.');
+          return;
+        }
+
+        try {
+          // Mengambil semua promise penghapusan
+          const deletePromises = data.map(row => {
+            return fetch(`${API_URL}/Tanggal/${row.Tanggal}`, {
+              method: 'DELETE'
+            }).then(response => {
+              if (!response.ok) {
+                return Promise.reject(new Error(`Gagal menghapus data untuk Tanggal ${row.Tanggal}. Error: ${response.status}`));
+              }
+              return response.json();
+            });
+          });
+
+          // Tunggu sampai semua promise selesai
+          await Promise.all(deletePromises);
+          showModal('Berhasil', 'Semua data berhasil dihapus!');
+          await fetchData();
+        } catch (error) {
+          console.error('Error saat menghapus semua data:', error);
+          showModal('Gagal', `Gagal menghapus semua data: ${error.message}`);
+        }
+      }
+
+      // ===============================
+      // Render Tabel dan Infografis
+      // ===============================
+      function renderTable() {
+        tableBody.innerHTML = '';
+        let sumN2 = 0, sumTambal = 0;
+
+        const sortedData = [...data].sort((a, b) => {
+          const dateA = new Date(a.Tanggal);
+          const dateB = new Date(b.Tanggal);
+          if (sortOrder === 'desc') {
+            return dateB - dateA;
+          } else {
+            return dateA - dateB;
+          }
+        });
+
+        sortedData.forEach((row) => {
+          const n2 = parseInt(row.N2) || 0;
+          const tambal = parseInt(row.Tambal) || 0;
+          sumN2 += n2;
+          sumTambal += tambal;
+
+          const totalRow = n2 + tambal;
+
+          const tr = document.createElement('tr');
+          tr.classList.add('hover:bg-base-200', 'transition-colors', 'duration-200');
+          tr.innerHTML = `
+            <td class="whitespace-nowrap">${formatDate(row.Tanggal)}</td>
+            <td class="whitespace-nowrap">${formatRupiah(n2)}</td>
+            <td class="whitespace-nowrap">${formatRupiah(tambal)}</td>
+            <td class="whitespace-nowrap font-semibold">${formatRupiah(totalRow)}</td>
+            <td class="flex flex-col sm:flex-row gap-2">
+              <button class="btn btn-sm btn-info text-xs md:text-sm" onclick="editRow('${row.Tanggal}')">Edit</button>
+              <button class="btn btn-sm btn-error text-xs md:text-sm" onclick="showDeleteModal('${row.Tanggal}')">Hapus</button>
+            </td>
+          `;
+          tableBody.appendChild(tr);
+        });
+
+        totalN2.textContent = formatRupiah(sumN2);
+        totalTambal.textContent = formatRupiah(sumTambal);
+        totalKeseluruhan.textContent = formatRupiah(sumN2 + sumTambal);
+
+        updateInfografis(sumN2, sumTambal);
+      }
+
+      function updateInfografis(sumN2, sumTambal) {
+        const total = sumN2 + sumTambal;
+        infJumlah.textContent = data.length;
+        infN2.textContent = formatRupiah(sumN2);
+        infTambal.textContent = formatRupiah(sumTambal);
+        infKeseluruhan.textContent = formatRupiah(total);
+
+        const targetVal = parseInt(inputTarget.value) || 0;
+        const remainingTarget = targetVal - total;
+        sisaTarget.textContent = formatRupiah(remainingTarget);
+        sisaTarget.classList.toggle('text-red-400', remainingTarget > 0);
+        sisaTarget.classList.toggle('text-green-400', remainingTarget <= 0);
+      }
+      
+      // ===============================
+      // Event Listeners
+      // ===============================
+
+      salesForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const tanggal = document.getElementById('tanggal').value;
+        const n2 = parseInt(document.getElementById('n2').value) || 0;
+        const tambal = parseInt(document.getElementById('tambal').value) || 0;
+
+        const formData = {
+          Tanggal: tanggal, // Pastikan nama kolom sesuai dengan header di Google Spreadsheet
+          N2: n2,
+          Tambal: tambal
+        };
+
+        if (editingRow) {
+          updateData(editingRow.Tanggal, formData);
+        } else {
+          postData(formData);
+        }
+        
+        // Reset formulir setelah pengiriman
+        salesForm.reset();
+        btnSubmit.textContent = 'Simpan Data';
+        editingRow = null;
+      });
+
+      window.editRow = (tanggal) => {
+        const rowToEdit = data.find(row => row.Tanggal === tanggal);
+        if (rowToEdit) {
+          document.getElementById('tanggal').value = rowToEdit.Tanggal;
+          document.getElementById('n2').value = rowToEdit.N2;
+          document.getElementById('tambal').value = rowToEdit.Tambal;
+          editingRow = rowToEdit;
+          btnSubmit.textContent = 'Update Data';
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      };
+
+      window.showDeleteModal = (tanggal) => {
+        rowToDeleteTanggal = tanggal;
+        deleteModal.showModal();
+      };
+
+      confirmDeleteBtn.addEventListener('click', () => {
+        if (rowToDeleteTanggal) {
+          deleteData(rowToDeleteTanggal);
+          rowToDeleteTanggal = null;
+          deleteModal.close();
+        }
+      });
+
+      resetDataBtn.addEventListener('click', () => {
+        resetModal.showModal();
+      });
+
+      confirmResetBtn.addEventListener('click', () => {
+        deleteAllData();
+        resetModal.close();
+      });
+
+      inputTarget.addEventListener('input', () => {
+        const sumN2 = data.reduce((acc, row) => acc + (parseInt(row.N2) || 0), 0);
+        const sumTambal = data.reduce((acc, row) => acc + (parseInt(row.Tambal) || 0), 0);
+        updateInfografis(sumN2, sumTambal);
+      });
+
+      sortBtn.addEventListener('click', () => {
+        sortOrder = sortOrder === 'desc' ? 'asc' : 'desc';
+        sortIcon.classList.toggle('fa-sort-up', sortOrder === 'asc');
+        sortIcon.classList.toggle('fa-sort-down', sortOrder === 'desc');
+        renderTable();
+      });
+
+      // Ambil data pertama kali saat halaman dimuat
+      fetchData();
+    });
+  </script>
+
 </body>
 </html>
