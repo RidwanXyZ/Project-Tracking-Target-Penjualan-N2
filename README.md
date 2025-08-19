@@ -18,4 +18,4 @@ Proyek ini menggunakan:
 Proyek ini menggunakan lisensi MIT. Lihat file `LICENSE` untuk detail lebih lanjut.
 
 ---
-> **Catatan:** Repository ini adalah bagian dari inisiatif PT NPI untuk meningkatkan efisiensi dalam manajemen penjualan.
+> **Catatan:** Repository ini adalah bagian dari inisiatif karyawan (tanpa dibayar) PT NPI untuk meningkatkan efisiensi dalam manajemen penjualan.
